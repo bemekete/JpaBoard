@@ -1,6 +1,9 @@
 package com.example.jpaboard.dto;
 
-import lombok.*;
+import com.example.jpaboard.entity.BoardEntity;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
@@ -16,4 +19,20 @@ public class BoardDTO {
     private int boardHits; // 조회수
     private LocalDateTime boardCreatedTime; // 게시글 작성시간
     private LocalDateTime boardUpdatedTime; // 게시글 수정시간
+
+    // Entity에 담긴 값들을 DTO로 옮겨담는 작업
+    public static BoardDTO toBoardDTO(BoardEntity boardEntity) {
+        BoardDTO boardDTO = new BoardDTO();
+
+        boardDTO.setId(boardEntity.getId());
+        boardDTO.setBoardWriter(boardEntity.getBoardWriter());
+        boardDTO.setBoardPass(boardEntity.getBoardPass());
+        boardDTO.setBoardTitle(boardEntity.getBoardTitle());
+        boardDTO.setBoardContents(boardEntity.getBoardContents());
+        boardDTO.setBoardHits(boardEntity.getBoardHits());
+        boardDTO.setBoardCreatedTime(boardEntity.getCreatedTime());
+        boardDTO.setBoardUpdatedTime(boardEntity.getUpdatedTime());
+
+        return boardDTO;
+    }
 }

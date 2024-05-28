@@ -32,10 +32,10 @@ public class BoardEntity extends BaseEntity {
     @Column
     private int boardHits;
 
+    // DTO에 담긴 값들을 Eneity객체로 옮겨담는 작업
     public static BoardEntity toSaveEntity(BoardDTO boardDTO) {
         BoardEntity boardEntity = new BoardEntity();
 
-        // DTO에 담긴 값들을 Eneity객체로 옮겨담는 작업
         boardEntity.setBoardWriter(boardDTO.getBoardWriter());
         boardEntity.setBoardPass(boardDTO.getBoardPass());
         boardEntity.setBoardTitle(boardDTO.getBoardTitle());
