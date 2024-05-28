@@ -3,11 +3,13 @@ package com.example.jpaboard.service;
 import com.example.jpaboard.dto.BoardDTO;
 import com.example.jpaboard.entity.BoardEntity;
 import com.example.jpaboard.repository.BoardRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 // DTO -> Entity (Entity class 에서 작업)
 // Entity ->DTO (DTO class 에서 작업)
@@ -37,5 +39,23 @@ public class BoardService {
         }
 
         return boardDTOList;
+    }
+    
+    // 조회수 증가
+    @Transactional // jpa에서 제공하는 메서드가 아닌 별도로 추가된 메서드를 사용할 때 사용
+    public void updateHits(Long id) {
+        boardRepository.updateHits(id);
+    }
+
+    // 게시글 상세보기
+    public BoardDTO findById(Long id) {
+        Optional<BoardEntity> optionalBoardEntity = boardRepository.findById(id);
+        if (optionalBoardEntity.isPresent()){
+            BoardEntity boardEntity = optionalBoardEntity.get();
+            BoardDTO boardDTO = BoardDTO.toBoardDTO(boardEntity);
+            return boardDTO;
+        }else{
+            return null;
+        }
     }
 }

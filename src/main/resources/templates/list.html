@@ -22,21 +22,25 @@
 <body>
 <table>
     <tr>
-        <th>id</th>
-        <th>title</th>
-        <th>title(||쓰지 않은 경우)</th>
-        <th>writer</th>
-        <th>date</th>
-        <th>hits</th>
+        <th>게시글번호</th>
+        <th>제목</th>
+        <th>작성자</th>
+        <th>작성날짜</th>
+        <th>조회수</th>
     </tr>
     <tr th:each="board: ${boardList}">
         <td th:text="${board.id}"></td>
         <td><a th:href="@{|/board/${board.id}|}" th:text="${board.boardTitle}"></a></td>
-        <td><a th:href="@{/board/${board.id}}" th:text="${board.boardTitle}"></a></td>
         <td th:text="${board.boardWriter}"></td>
         <td th:text="*{#temporals.format(board.boardCreatedTime, 'yyyy-MM-dd HH:mm:ss')}"></td>
         <td th:text="${board.boardHits}"></td>
     </tr>
 </table>
+<button onclick="saveReq()">글작성</button>
 </body>
+<script>
+    function saveReq(){
+        location.href = "/board/save";
+    }
+</script>
 </html>
