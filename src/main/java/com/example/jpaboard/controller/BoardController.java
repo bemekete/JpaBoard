@@ -53,4 +53,19 @@ public class BoardController {
         model.addAttribute("board",boardDTO);
         return "detail";
     }
+
+    // 게시글 수정 (수정할 정보 불러오기)
+    @GetMapping("/update/{id}")
+    public String updateForm(@PathVariable("id") Long id, Model model){
+        BoardDTO boardDTO = boardService.findById(id);
+        model.addAttribute("boardUpdate",boardDTO);
+        return "update";
+    }
+
+    @PostMapping("update")
+    public String update(@ModelAttribute BoardDTO boardDTO, Model model){
+        BoardDTO board = boardService.update(boardDTO);
+        model.addAttribute("board",board);
+        return "detail";
+    }
 }
