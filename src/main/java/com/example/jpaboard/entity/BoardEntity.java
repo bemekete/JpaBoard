@@ -31,30 +31,37 @@ public class BoardEntity extends BaseEntity {
 
     @Column
     private int boardHits;
-
-    // 게시글 작성
+    
     // DTO에 담긴 값들을 Eneity객체로 옮겨담는 작업
+    // 게시글 작성, 수정 한번에
     public static BoardEntity toSaveEntity(BoardDTO boardDTO) {
         BoardEntity boardEntity = new BoardEntity();
 
+        // boardDTO에 id가 없다면(게시글 작성)
+        if (boardDTO.getId() == null) {
+            boardEntity.setBoardHits(0);
+        } else {
+            // boardDTO에 id가 있다면(게시글 수정)
+            boardEntity.setId(boardDTO.getId());
+            boardEntity.setBoardHits(boardDTO.getBoardHits());
+        }
         boardEntity.setBoardWriter(boardDTO.getBoardWriter());
         boardEntity.setBoardPass(boardDTO.getBoardPass());
         boardEntity.setBoardTitle(boardDTO.getBoardTitle());
         boardEntity.setBoardContents(boardDTO.getBoardContents());
-        boardEntity.setBoardHits(0);
         return boardEntity;
     }
 
     // 게시글 수정(위 게시글 작성 코드에서 Id가 추가됨)
-    public static BoardEntity toUpdateEntity(BoardDTO boardDTO) {
-        BoardEntity boardEntity = new BoardEntity();
-
-        boardEntity.setId(boardDTO.getId());
-        boardEntity.setBoardWriter(boardDTO.getBoardWriter());
-        boardEntity.setBoardPass(boardDTO.getBoardPass());
-        boardEntity.setBoardTitle(boardDTO.getBoardTitle());
-        boardEntity.setBoardContents(boardDTO.getBoardContents());
-        boardEntity.setBoardHits(boardDTO.getBoardHits());
-        return boardEntity;
-    }
+//    public static BoardEntity toUpdateEntity(BoardDTO boardDTO) {
+//        BoardEntity boardEntity = new BoardEntity();
+//
+//        boardEntity.setId(boardDTO.getId());
+//        boardEntity.setBoardWriter(boardDTO.getBoardWriter());
+//        boardEntity.setBoardPass(boardDTO.getBoardPass());
+//        boardEntity.setBoardTitle(boardDTO.getBoardTitle());
+//        boardEntity.setBoardContents(boardDTO.getBoardContents());
+//        boardEntity.setBoardHits(boardDTO.getBoardHits());
+//        return boardEntity;
+//    }
 }

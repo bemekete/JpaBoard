@@ -23,13 +23,10 @@ public class BoardController {
 
     // 게시글 작성
     @PostMapping("/save")
-    public String save(@ModelAttribute BoardDTO boardDTO, Model model){
+    public String save(@ModelAttribute BoardDTO boardDTO){
         System.out.println("boardDTO = " + boardDTO);
         boardService.save(boardDTO);
-        
-        // 게시글 저장 후 전체목록 불러오기
-        findAll(model);
-        return "list";
+        return "redirect:/board/";
     }
 
     // 게시글 전체 불러오기
@@ -62,10 +59,18 @@ public class BoardController {
         return "update";
     }
 
+    // 수정하고 수정한 내용 불러오기
     @PostMapping("update")
     public String update(@ModelAttribute BoardDTO boardDTO, Model model){
         BoardDTO board = boardService.update(boardDTO);
         model.addAttribute("board",board);
         return "detail";
+    }
+
+    // 게시글 삭제하기
+    @GetMapping("/delete/{id}")
+    public String delete(@PathVariable("id") Long id){
+        boardService.delete(id);
+        return "redirect:/board/";
     }
 }
