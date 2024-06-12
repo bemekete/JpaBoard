@@ -3,6 +3,9 @@ package com.example.jpaboard.controller;
 import com.example.jpaboard.dto.BoardDTO;
 import com.example.jpaboard.service.BoardService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +43,7 @@ public class BoardController {
 
     // 게시글 상세보기
     @GetMapping("/{id}")
-    public String findById(@PathVariable("id") Long id, Model model){
+    public String findById(@PathVariable("id") Long id, Model model, @PageableDefault(page = 1) Pageable pageable){
         // 해당 게시글의 조회수 업데이트
         boardService.updateHits(id);
 
@@ -48,6 +51,11 @@ public class BoardController {
         BoardDTO boardDTO = boardService.findById(id);
 
         model.addAttribute("board",boardDTO);
+        model.addAttribute("page", pageable.getPageNumber());
+        // @PageableDefault(page = 1) Pageable pageable 추가 이유는
+        // 상세페이지에서 목록으로 돌아갈 때 일치하는 목록페이지로 가기 위함.
+        // 54줄 코드로 detail 페이지로 갈 때 페이지정보를 가져간 후
+        // 목록으로 갈때 다시 그 페이지정보를 가지고 일치하는 페이지로 이동
         return "detail";
     }
 
@@ -73,4 +81,50 @@ public class BoardController {
         boardService.delete(id);
         return "redirect:/board/";
     }
+
+    // 페이징 기능
+    // /board/paging?page=1
+    @GetMapping("/paging")
+    public String paging(@PageableDefault(page = 1) Pageable pageable, Model model){
+        Page<BoardDTO> boardList = boardService.paging(pageable);
+        int blockLimit = 5; // 페이징버튼 개수 1~5, 6~10
+
+        int startPage = (((int)(Math.ceil((double)pageable.getPageNumber() / blockLimit))) - 1) * blockLimit + 1; // 1,4,7, ...
+        int endPage = ((startPage + blockLimit - 1) < boardList.getTotalPages()) ? startPage + blockLimit - 1 : boardList.getTotalPages();
+
+        model.addAttribute("boardList",boardList);
+        model.addAttribute("startPage",startPage);
+        model.addAttribute("endPage",endPage);
+
+        return "paging";
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

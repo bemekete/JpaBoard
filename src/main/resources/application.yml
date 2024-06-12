@@ -1,8 +1,8 @@
-# ?? ?? ??
+# 서버포트
 server:
   port: 8082
 
-# database ?? ??
+# database 설정
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -12,11 +12,14 @@ spring:
   thymeleaf:
     cache: false
 
-  # spring data jpa ??
+  # spring data jpa 설정
   jpa:
-    database-platform: org.hibernate.dialect.MySQL8Dialect
+#    database-platform: org.hibernate.dialect.MySQLDialect
     open-in-view: false
-    show-sql: true
+    show-sql: true # jpa가 생성하는 sql 쿼리를 로그에 보여주는 설정
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
       #?? ?? ? ??? ??? create -> update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect

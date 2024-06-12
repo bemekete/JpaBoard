@@ -20,6 +20,15 @@ public class BoardDTO {
     private LocalDateTime boardCreatedTime; // 게시글 작성시간
     private LocalDateTime boardUpdatedTime; // 게시글 수정시간
 
+    // 페이징 처리를 위해 생성 BoardService 99번째 줄
+    public BoardDTO(Long id, String boardWriter, String boardTitle, int boardHits, LocalDateTime boardCreatedTime) {
+        this.id = id;
+        this.boardWriter = boardWriter;
+        this.boardTitle = boardTitle;
+        this.boardHits = boardHits;
+        this.boardCreatedTime = boardCreatedTime;
+    }
+
     // Entity에 담긴 값들을 DTO로 옮겨담는 작업
     public static BoardDTO toBoardDTO(BoardEntity boardEntity) {
         BoardDTO boardDTO = new BoardDTO();
