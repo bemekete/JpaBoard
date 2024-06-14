@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 // DB의 테이블 역할을 하는 클래스
 // jpa에서는 필수적으로 사용해야하는 클래스
 @Entity
@@ -31,37 +34,79 @@ public class BoardEntity extends BaseEntity {
 
     @Column
     private int boardHits;
-    
+
+    @Column
+    private int fileAttached; // 1 or 0
+
+    @OneToMany(mappedBy = "boardEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<BoardFileEntity> boardFileEntityList = new ArrayList<>();
+    // mappedBy = "boardEntity" -> BoardFileEntity의 필드명과 맞춰준다. (25번째 줄)
+    // cascade = CascadeType.REMOVE, orphanRemoval = true -> sql쿼리 (on delete cascade)
+
     // DTO에 담긴 값들을 Eneity객체로 옮겨담는 작업
-    // 게시글 작성, 수정 한번에
+    // 게시글 작성
     public static BoardEntity toSaveEntity(BoardDTO boardDTO) {
         BoardEntity boardEntity = new BoardEntity();
 
-        // boardDTO에 id가 없다면(게시글 작성)
-        if (boardDTO.getId() == null) {
-            boardEntity.setBoardHits(0);
-        } else {
-            // boardDTO에 id가 있다면(게시글 수정)
-            boardEntity.setId(boardDTO.getId());
-            boardEntity.setBoardHits(boardDTO.getBoardHits());
-        }
         boardEntity.setBoardWriter(boardDTO.getBoardWriter());
         boardEntity.setBoardPass(boardDTO.getBoardPass());
         boardEntity.setBoardTitle(boardDTO.getBoardTitle());
         boardEntity.setBoardContents(boardDTO.getBoardContents());
+        boardEntity.setBoardHits(0);
+        boardEntity.setFileAttached(0); // 파일 없음
         return boardEntity;
     }
 
     // 게시글 수정(위 게시글 작성 코드에서 Id가 추가됨)
-//    public static BoardEntity toUpdateEntity(BoardDTO boardDTO) {
-//        BoardEntity boardEntity = new BoardEntity();
-//
-//        boardEntity.setId(boardDTO.getId());
-//        boardEntity.setBoardWriter(boardDTO.getBoardWriter());
-//        boardEntity.setBoardPass(boardDTO.getBoardPass());
-//        boardEntity.setBoardTitle(boardDTO.getBoardTitle());
-//        boardEntity.setBoardContents(boardDTO.getBoardContents());
-//        boardEntity.setBoardHits(boardDTO.getBoardHits());
-//        return boardEntity;
-//    }
+    public static BoardEntity toUpdateEntity(BoardDTO boardDTO) {
+        BoardEntity boardEntity = new BoardEntity();
+
+        boardEntity.setId(boardDTO.getId());
+        boardEntity.setBoardWriter(boardDTO.getBoardWriter());
+        boardEntity.setBoardPass(boardDTO.getBoardPass());
+        boardEntity.setBoardTitle(boardDTO.getBoardTitle());
+        boardEntity.setBoardContents(boardDTO.getBoardContents());
+        boardEntity.setBoardHits(boardDTO.getBoardHits());
+        return boardEntity;
+    }
+
+    // 파일 있는 게시글 작성
+    public static BoardEntity toSaveFileEntity(BoardDTO boardDTO) {
+        BoardEntity boardEntity = new BoardEntity();
+
+        // boardDTO에 id가 없다면(게시글 작성)
+        boardEntity.setBoardWriter(boardDTO.getBoardWriter());
+        boardEntity.setBoardPass(boardDTO.getBoardPass());
+        boardEntity.setBoardTitle(boardDTO.getBoardTitle());
+        boardEntity.setBoardContents(boardDTO.getBoardContents());
+        boardEntity.setBoardHits(0);
+        boardEntity.setFileAttached(1); // 파일 있음
+        return boardEntity;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -2,6 +2,8 @@ package com.example.jpaboard.service;
 
 import com.example.jpaboard.dto.BoardDTO;
 import com.example.jpaboard.entity.BoardEntity;
+import com.example.jpaboard.entity.BoardFileEntity;
+import com.example.jpaboard.repository.BoardFileRepository;
 import com.example.jpaboard.repository.BoardRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +12,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,14 +27,68 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class BoardService {
     private final BoardRepository boardRepository;
+    private final BoardFileRepository boardFileRepository;
 
     // 게시글 작성(저장)
-    public void save(BoardDTO boardDTO) {
-        BoardEntity boardEntity = BoardEntity.toSaveEntity(boardDTO);
-        boardRepository.save(boardEntity);
+    public void save(BoardDTO boardDTO) throws IOException {
+        // 파일 첨부 여부에 따라 로직 분리
+//        if (boardDTO.getFileAttached() == 1) {
+        if (boardDTO.getBoardFile().isEmpty()) {
+            // 첨부파일 없음
+            BoardEntity boardEntity = BoardEntity.toSaveEntity(boardDTO);
+            boardRepository.save(boardEntity);
+
+        } else {
+            // 첨부파일 있음
+            /*
+                1. DTO에 담긴 파일을 꺼냄
+                2. 파일의 이름 가져옴
+                3. 서버 저장용 이름은 만듦
+                4. 저장 경로 설정
+                5. 해당 경로에 파일 저장
+                6. board_table에 해당 데이터 save 처리
+                7. board_file_table에 해당 데이터 save 처리
+            */
+
+            // 다중파일 불러올 때
+            // 1. 첨부파일이 있다면 DTO를 Entity로 변환해서 DB에 저장 후 부모엔티티의 아이디값을 가져온다.
+            BoardEntity boardEntity = BoardEntity.toSaveFileEntity(boardDTO);
+            Long saveId = boardRepository.save(boardEntity).getId();
+            BoardEntity board = boardRepository.findById(saveId).get();
+
+            // 2. 반복문으로 첨부 파일을 하나씩 불러와서 로컬경로에 저장한 후
+            // 3. 부모엔티티를 참조하고있는 자식엔티티에 정보를 넣어 DB에 저장
+            for (MultipartFile boardFile : boardDTO.getBoardFile()) {
+                String originalFilename = boardFile.getOriginalFilename();
+                String storedFileName = System.currentTimeMillis() + "_" + originalFilename;
+                String savePath = "C:/ProjectHwang/uploadFiles/" + storedFileName;
+                boardFile.transferTo(new File(savePath));
+
+                BoardFileEntity boardFileEntity = BoardFileEntity.toBoardFileEntity(board, originalFilename, storedFileName);
+                boardFileRepository.save(boardFileEntity);
+            }
+
+            // 단일파일 불러올 때
+//            // 1~5
+//            MultipartFile boardFile = boardDTO.getBoardFile();
+//            String originalFilename = boardFile.getOriginalFilename();
+//            String storedFileName = System.currentTimeMillis() + "_" + originalFilename;
+//            String savePath = "C:/ProjectHwang/uploadFiles/" + storedFileName;
+//            boardFile.transferTo(new File(savePath));
+//
+//            // 6
+//            BoardEntity boardEntity = BoardEntity.toSaveFileEntity(boardDTO);
+//            Long saveId = boardRepository.save(boardEntity).getId();
+//            BoardEntity board = boardRepository.findById(saveId).get();
+//
+//            // 7
+//            BoardFileEntity boardFileEntity = BoardFileEntity.toBoardFileEntity(board, originalFilename, storedFileName);
+//            boardFileRepository.save(boardFileEntity);
+        }
     }
 
-    // 게시글 전체 불러오기
+    // 게시글목록 전체 불러오기
+    @Transactional
     public List<BoardDTO> findAll() {
         List<BoardEntity> boardEntityList = boardRepository.findAll();
         List<BoardDTO> boardDTOList = new ArrayList<BoardDTO>();
@@ -39,7 +98,7 @@ public class BoardService {
         // toBoardDTO 메서드로 DTO에 옮겨담아
         // boardDTOList에 담는다
         for (BoardEntity boardEntity : boardEntityList) {
-            boardDTOList.add(BoardDTO.toBoardDTO(boardEntity));
+            boardDTOList.add(BoardDTO.toBoardDTO(boardEntity)); // List용 DTO 따로 만들어보기
         }
 
         return boardDTOList;
@@ -51,7 +110,9 @@ public class BoardService {
         boardRepository.updateHits(id);
     }
 
+
     // 게시글 상세보기
+    @Transactional
     public BoardDTO findById(Long id) {
         Optional<BoardEntity> optionalBoardEntity = boardRepository.findById(id);
         if (optionalBoardEntity.isPresent()) {
@@ -65,7 +126,7 @@ public class BoardService {
 
     // 게시글 수정하기
     public BoardDTO update(BoardDTO boardDTO) {
-        BoardEntity boardEntity = BoardEntity.toSaveEntity(boardDTO);
+        BoardEntity boardEntity = BoardEntity.toUpdateEntity(boardDTO);
         boardRepository.save(boardEntity);
         return findById(boardDTO.getId());
     }
