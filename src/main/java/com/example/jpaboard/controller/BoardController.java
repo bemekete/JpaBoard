@@ -1,7 +1,9 @@
 package com.example.jpaboard.controller;
 
 import com.example.jpaboard.dto.BoardDTO;
+import com.example.jpaboard.dto.CommentDTO;
 import com.example.jpaboard.service.BoardService;
+import com.example.jpaboard.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +20,7 @@ import java.util.List;
 @RequestMapping("/board")
 public class BoardController {
     private final BoardService boardService;
+    private final CommentService commentService;
 
     // 게시글 작성 폼으로 이동
     @GetMapping("/save")
@@ -50,6 +53,10 @@ public class BoardController {
 
         // 게시글 데이터 불러와서 detail.html에 출력
         BoardDTO boardDTO = boardService.findById(id);
+
+        // 댓글목록 가져오기
+        List<CommentDTO> commentDTOList = commentService.findAll(id);
+        model.addAttribute("commentList",commentDTOList);
 
         model.addAttribute("board",boardDTO);
         model.addAttribute("page", pageable.getPageNumber());

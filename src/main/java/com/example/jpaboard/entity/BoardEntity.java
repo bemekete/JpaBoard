@@ -43,6 +43,9 @@ public class BoardEntity extends BaseEntity {
     // mappedBy = "boardEntity" -> BoardFileEntity의 필드명과 맞춰준다. (25번째 줄)
     // cascade = CascadeType.REMOVE, orphanRemoval = true -> sql쿼리 (on delete cascade)
 
+    @OneToMany(mappedBy = "boardEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<CommentEntity> commentEntityList = new ArrayList<>();
+
     // DTO에 담긴 값들을 Eneity객체로 옮겨담는 작업
     // 게시글 작성
     public static BoardEntity toSaveEntity(BoardDTO boardDTO) {

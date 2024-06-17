@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 // DTO -> Entity (Entity class 에서 작업)
 // Entity ->DTO (DTO class 에서 작업)
@@ -31,8 +32,15 @@ public class BoardService {
 
     // 게시글 작성(저장)
     public void save(BoardDTO boardDTO) throws IOException {
+        // 첨부파일 리스트에서 빈 파일을 제거
+        List<MultipartFile> filteredFiles = boardDTO.getBoardFile().stream()
+                .filter(file -> !file.isEmpty())
+                .collect(Collectors.toList());
+
+        // 필터링된 파일 리스트를 DTO에 다시 설정
+        boardDTO.setBoardFile(filteredFiles);
+
         // 파일 첨부 여부에 따라 로직 분리
-//        if (boardDTO.getFileAttached() == 1) {
         if (boardDTO.getBoardFile().isEmpty()) {
             // 첨부파일 없음
             BoardEntity boardEntity = BoardEntity.toSaveEntity(boardDTO);
